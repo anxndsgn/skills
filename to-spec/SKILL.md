@@ -38,6 +38,8 @@ How to fill this section depends on where the spec sits in the workflow:
 
 - **Synthesis mode** — the decisions already exist earlier in the conversation. Do NOT restate them as stories; post-hoc stories are decision projections, not requirements, and they add reading weight without adding constraint. Instead do the one thing the story exercise is genuinely good for: an actor × situation sweep for edges no decision has covered yet — empty states, missing configuration, offline, version skew, races, permission and auth failures, idempotent re-runs. Write the result as a numbered list of acceptance criteria: externally observable behaviors a test could assert. Add a story only when it pins down behavior nothing else has fixed.
 
+In either mode, include a numbered `### Acceptance Criteria` subsection of externally observable behaviors a test could assert.
+
 ## Implementation Decisions
 
 A list of implementation decisions that were made. This can include:
@@ -54,13 +56,15 @@ Do NOT include specific file paths or code snippets. They may end up being outda
 
 Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
 
-## Testing Decisions
+## Verification Plan
 
-A list of testing decisions that were made. Include:
+For each acceptance criterion, name the smallest credible evidence that would prove it. Include:
 
-- A description of what makes a good test (only test external behavior, not implementation details)
-- Which modules will be tested
-- Prior art for the tests (i.e. similar types of tests in the codebase)
+- Relevant tests or other checks
+- Runtime or manual verification where automation is insufficient
+- Applicable typecheck, lint, build, migration, or compatibility checks
+
+Prefer existing test seams and external behavior. Do not invent exact commands or file names that the repository has not confirmed.
 
 ## Out of Scope
 

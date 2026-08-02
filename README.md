@@ -1,3 +1,59 @@
-My personal skills loops.
+# Personal Agent Skills
 
-<img width="3000" height="1200" alt="image" src="https://github.com/user-attachments/assets/ade5321c-4f3e-489e-bd7d-77c669e72ba4" />
+Small, composable skills for aligning intent, implementing from a stable spec, and proving the result. Each skill has one responsibility; chain only the ones the task needs.
+
+<img alt="image" src="https://github.com/user-attachments/assets/ade5321c-4f3e-489e-bd7d-77c669e72ba4" />
+
+## Core Skills
+
+| Skill | Responsibility |
+| --- | --- |
+| `/grill-me` | Surface unresolved human decisions, one question at a time. |
+| `/to-spec` | Turn the agreed context into a task contract with Acceptance Criteria and a Verification Plan. |
+| `/spec-review` | Challenge a spec before implementation for necessity, completeness, and feasibility. |
+| `/spec-verify` | Verify the final implementation against every Acceptance Criterion using concrete evidence. |
+| `/code-review` | Find material correctness defects and hidden engineering risks in the changed code. |
+| `/simplify` | Reduce unnecessary complexity without changing intended behavior. Claude code built-in skill. |
+
+Implementation is intentionally not a skill:
+
+```text
+Implement @spec-file and complete its Verification Plan.
+```
+
+## Common Chains
+
+Clear, small feature:
+
+```text
+/to-spec → implement → /spec-verify
+```
+
+Feature needing alignment:
+
+```text
+/grill-me → /to-spec → implement → /spec-verify
+```
+
+Full feature:
+
+```text
+/grill-me → /to-spec → /spec-review
+→ /grill-me → /to-spec @spec-file
+→ implement → /spec-verify
+```
+
+Add `/code-review` for substantial or high-risk changes. Add `/simplify` only when the implementation shows clear complexity. After either changes code, run `/spec-verify` again.
+
+Tiny changes do not need this pipeline: describe the change, implement it, run the smallest relevant check, and inspect the diff.
+
+## Utilities
+
+| Skill | Responsibility |
+| --- | --- |
+| `/conventional-commit` | Group and commit changes with focused conventional commits. |
+| `/create-pr` | Push the current work through the repository's pull-request workflow. |
+
+## Acknowledgements
+
+Inspired by [Matt Pocock's skills](https://github.com/mattpocock/skills). Thanks for open-sourcing the concise, composable approach that helped shape this workflow.

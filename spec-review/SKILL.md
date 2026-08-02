@@ -12,7 +12,7 @@ Work through three lenses, in this order (a feature that fails lens 1 makes lens
 
 1. **Necessity.** Does the problem justify the feature? Test it against the charter's intent and boundaries — where a spec conflicts with the charter, the spec is defective. Ask: could an existing surface (a verb, a plugin, another spec) absorb this instead? What actually breaks for the user if this is never built?
 
-2. **Completeness.** Would two implementers reading only this spec build the same thing? Hunt the underspecified edges: empty and error states, interactions with the specs it touches, concurrency and idempotency where the domain has them, and whether the Verification section pins each promised behavior to something testable. Check that glossary terms are used exactly — a term used loosely is a decision left unmade.
+2. **Completeness.** Would two implementers reading only this spec build the same thing? Hunt the underspecified edges: empty and error states, interactions with the specs it touches, concurrency and idempotency where the domain has them, and whether every Acceptance Criterion is observable and mapped to credible evidence in the Verification Plan. Check that glossary terms are used exactly — a term used loosely is a decision left unmade.
 
 3. **Implementation.** Will the plan survive contact with the codebase? Check it against the architecture invariants in the repo CLAUDE.md; flag hidden migrations, hard-to-reverse choices, and machinery out of proportion to the problem it solves.
 
