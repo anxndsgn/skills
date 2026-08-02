@@ -1,0 +1,22 @@
+{
+  "name": "skills",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Small, composable skills for aligning intent, implementing from a stable spec, and proving the result. Each skill has one responsibility; chain only the ones the task needs.",
+  "homepage": "https://github.com/anxndsgn/skills#readme",
+  "bugs": {
+    "url": "https://github.com/anxndsgn/skills/issues"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anxndsgn/skills.git"
+  },
+  "scripts": {
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.61.0"
+  }
+}
