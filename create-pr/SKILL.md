@@ -17,15 +17,17 @@ concrete examples.
 ## Workflow
 
 1. **Get off `main` if needed.** If the work sits on `main`, create a branch
-   named `type/kebab-topic` (e.g. `feat/record-fork-family`) and move the
+   named `type/kebab-topic` (e.g. `feat/email-sign-in`) and move the
    commits there.
 2. **Commit anything uncommitted** using the conventional-commit skill's rules:
    `type(scope): summary`, one commit per logical change.
 3. **Review the full branch diff** — `git log` and `git diff main...HEAD` — so
    the body describes everything the PR contains, not just the last commit.
-4. **Run validation** before pushing: `bun test`, `bun run typecheck`,
-   `bun run build`, and `oxfmt --check` on changed files. Report real results
-   in the body; if something fails, stop and say so instead of opening the PR.
+4. **Run validation** before pushing: the checks this repo declares (CLAUDE.md,
+   package scripts, CI config). If `/spec-verify` already produced evidence for
+   this work, cite that instead of re-running the same checks. Report real
+   results in the body; if something fails, stop and say so instead of opening
+   the PR.
 5. **Push** with `git push -u origin <branch>`.
 6. **Create the PR** with `gh pr create`, passing the body via a heredoc or
    `--body-file` so markdown survives intact.
@@ -33,9 +35,8 @@ concrete examples.
 ## Title
 
 Conventional-commit style, matching the branch's main commit:
-`feat(record): detect fork families from shared event identity`. Omit the
-scope when the change spans the whole package (`feat: implement skill
-enablement`).
+`feat(auth): add email sign-in`. Omit the scope when the change spans the
+whole package (`feat: implement skill enablement`).
 
 ## Body template
 
@@ -56,14 +57,12 @@ change resolves it. If the PR implements a spec, link it here — e.g.
 
 ## Validation
 
-- `bun test` — <N> passed
-- `bun run typecheck`
-- changed-file `oxfmt --check`
-- `bun run build`
+- one bullet per check run, with its real result (e.g. `<test command>` — <N> passed)
+- or cite the `/spec-verify` report when one covers this work
 ```
 
 Keep the body honest and concrete: bullets describe what actually changed,
 "Why" explains intent rather than restating the diff, and the Validation
 numbers come from runs you actually performed. For refactor-only PRs, replace
-"User impact" with a note that there are no behavior changes (see PR #12 for
-the style). Don't pad — a small PR deserves a short body.
+"User impact" with a note that there are no behavior changes. Don't pad — a
+small PR deserves a short body.

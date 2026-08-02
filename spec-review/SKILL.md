@@ -6,13 +6,13 @@ disable-model-invocation: true
 
 Review the named spec (or the spec currently under discussion). The deliverable is the review itself — do not edit the spec or write code unless asked afterwards.
 
-Read only what the review needs: the target spec, the charter, CONTEXT.md, and the specs the target names or amends. Do not sweep the whole repo — a review that costs more than the spec is a bad trade.
+Read only what the review needs: the target spec, whatever the repo uses to state project intent and constraints (README, CLAUDE.md, ADRs), and the specs the target names or amends. Do not sweep the whole repo — a review that costs more than the spec is a bad trade.
 
 Work through three lenses, in this order (a feature that fails lens 1 makes lenses 2–3 moot):
 
-1. **Necessity.** Does the problem justify the feature? Test it against the charter's intent and boundaries — where a spec conflicts with the charter, the spec is defective. Ask: could an existing surface (a verb, a plugin, another spec) absorb this instead? What actually breaks for the user if this is never built?
+1. **Necessity.** Does the problem justify the feature? Test it against the project's stated intent and boundaries — where a spec conflicts with them, the spec is defective. Ask: could an existing surface (a verb, a plugin, another spec) absorb this instead? What actually breaks for the user if this is never built?
 
-2. **Completeness.** Would two implementers reading only this spec build the same thing? Hunt the underspecified edges: empty and error states, interactions with the specs it touches, concurrency and idempotency where the domain has them, and whether every Acceptance Criterion is observable and mapped to credible evidence in the Verification Plan. Check that glossary terms are used exactly — a term used loosely is a decision left unmade.
+2. **Completeness.** Would two implementers reading only this spec build the same thing? Hunt the underspecified edges: empty and error states, interactions with the specs it touches, concurrency and idempotency where the domain has them, and whether every Acceptance Criterion is observable and mapped to credible evidence in the Verification Plan. Check that the project's domain terms are used exactly — a term used loosely is a decision left unmade.
 
 3. **Implementation.** Will the plan survive contact with the codebase? Check it against the architecture invariants in the repo CLAUDE.md; flag hidden migrations, hard-to-reverse choices, and machinery out of proportion to the problem it solves.
 
