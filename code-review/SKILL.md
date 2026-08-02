@@ -39,16 +39,16 @@ Top level: `level` (`low` | `medium` | `high` | `xhigh` | `max`), `findings`
 
 Each finding:
 
-| field | required | meaning |
-| --- | --- | --- |
-| `file` | yes | repo-relative path |
-| `line` | no | 1-indexed anchor line |
-| `summary` | yes | one-sentence statement of the defect |
-| `short_summary` | no | ≤60 chars, the claim alone — no rationale or consequence |
-| `failure_scenario` | yes | concrete inputs/state → wrong output/crash |
-| `category` | no | kebab-case slug, e.g. `correctness`, `simplification`, `efficiency`, `test-coverage` |
-| `verdict` | no | `CONFIRMED` \| `PLAUSIBLE` — set only when a verify pass ran |
-| `outcome` | no | `fixed` \| `skipped` \| `no_change_needed` — set only when re-reporting after applying fixes |
+| field              | required | meaning                                                                                      |
+| ------------------ | -------- | -------------------------------------------------------------------------------------------- |
+| `file`             | yes      | repo-relative path                                                                           |
+| `line`             | no       | 1-indexed anchor line                                                                        |
+| `summary`          | yes      | one-sentence statement of the defect                                                         |
+| `short_summary`    | no       | ≤60 chars, the claim alone — no rationale or consequence                                     |
+| `failure_scenario` | yes      | concrete inputs/state → wrong output/crash                                                   |
+| `category`         | no       | kebab-case slug, e.g. `correctness`, `simplification`, `efficiency`, `test-coverage`         |
+| `verdict`          | no       | `CONFIRMED` \| `PLAUSIBLE` — set only when a verify pass ran                                 |
+| `outcome`          | no       | `fixed` \| `skipped` \| `no_change_needed` — set only when re-reporting after applying fixes |
 
 Call the tool once. Do not also print the findings as a text list in place of the
 tool call (the one-line restatement above is in addition to it, not instead).
@@ -60,12 +60,12 @@ sub-agents. At higher reasoning effort the same review runs as a fan-out pipelin
 via the Agent tool. If the Agent tool is unavailable, degrade to a single inline
 pass at the same finding cap rather than erroring.
 
-| effort | shape | bias | cap |
-| --- | --- | --- | --- |
-| low | single careful diff pass, inline | balanced | 15 |
-| medium | 3 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 6 candidates → 1-vote verify | **precision** — every finding is one a maintainer would act on | 8 |
-| high | same 8 angles × 6 candidates → 1-vote verify, recall-biased | **recall** — catching real bugs beats avoiding false positives | 10 |
-| xhigh / max | 5 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 8 candidates → 1-vote verify → sweep | **recall** — a missed bug ships | 15 |
+| effort      | shape                                                                                               | bias                                                           | cap |
+| ----------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --- |
+| low         | single careful diff pass, inline                                                                    | balanced                                                       | 15  |
+| medium      | 3 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 6 candidates → 1-vote verify         | **precision** — every finding is one a maintainer would act on | 8   |
+| high        | same 8 angles × 6 candidates → 1-vote verify, recall-biased                                         | **recall** — catching real bugs beats avoiding false positives | 10  |
+| xhigh / max | 5 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 8 candidates → 1-vote verify → sweep | **recall** — a missed bug ships                                | 15  |
 
 Pipeline rules at medium and above:
 
@@ -90,5 +90,5 @@ Pipeline rules at medium and above:
   compiler catches is out of scope — CI runs separately.
 - Pre-existing issues on lines the diff did not touch are out of scope.
 - Cleanup angles (reuse, simplification, efficiency, altitude) apply to the
-  *changed* code only. For a quality-only pass that also applies the fixes, use
+  _changed_ code only. For a quality-only pass that also applies the fixes, use
   `/simplify` instead.

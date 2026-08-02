@@ -2,6 +2,6 @@ interface:
   display_name: "Conventional Commit"
   short_description: "Draft and split git commits by scope"
   default_prompt: "Use $conventional-commit to review git changes, split unrelated work, and create conventional commit messages."
-  
+
 policy:
   allow_implicit_invocation: false

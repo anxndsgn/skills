@@ -6,14 +6,14 @@ Small, composable skills for aligning intent, implementing from a stable spec, a
 
 ## Core Skills
 
-| Skill | Responsibility |
-| --- | --- |
-| `/grill-me` | Surface unresolved human decisions, one question at a time. |
-| `/to-spec` | Turn the agreed context into a task contract with Acceptance Criteria and a Verification Plan. |
-| `/spec-review` | Challenge a spec before implementation for necessity, completeness, and feasibility. |
-| `/spec-verify` | Verify the final implementation against every Acceptance Criterion using concrete evidence. |
-| `/code-review` | Find material correctness defects and hidden engineering risks in the changed code. |
-| `/simplify` | Reduce unnecessary complexity without changing intended behavior. Claude code built-in skill. |
+| Skill          | Responsibility                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| `/grill-me`    | Surface unresolved human decisions, one question at a time.                                    |
+| `/to-spec`     | Turn the agreed context into a task contract with Acceptance Criteria and a Verification Plan. |
+| `/spec-review` | Challenge a spec before implementation for necessity, completeness, and feasibility.           |
+| `/spec-verify` | Verify the final implementation against every Acceptance Criterion using concrete evidence.    |
+| `/code-review` | Find material correctness defects and hidden engineering risks in the changed code.            |
+| `/simplify`    | Reduce unnecessary complexity without changing intended behavior. Claude code built-in skill.  |
 
 Implementation is intentionally not a skill:
 
@@ -49,10 +49,10 @@ Tiny changes do not need this pipeline: describe the change, implement it, run t
 
 ## Utilities
 
-| Skill | Responsibility |
-| --- | --- |
-| `/conventional-commit` | Group and commit changes with focused conventional commits. |
-| `/create-pr` | Push the current work through the repository's pull-request workflow. |
+| Skill                  | Responsibility                                                        |
+| ---------------------- | --------------------------------------------------------------------- |
+| `/conventional-commit` | Group and commit changes with focused conventional commits.           |
+| `/create-pr`           | Push the current work through the repository's pull-request workflow. |
 
 ## Acknowledgements
 
