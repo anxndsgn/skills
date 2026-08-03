@@ -1,19 +1,28 @@
 ---
 name: code-review
-description: Review the working diff (or a named PR / branch / file) for real bugs as a careful senior engineer, then report findings as a structured list. Use for "review my changes", "check this diff for bugs", "code review this branch".
+description: Review code changes for real bugs as a careful senior engineer, then report findings as a structured list. Automatically picks the review scope — working diff, PR, branch, or file — from the user's words and repo state. Use for "review my changes", "check this diff for bugs", "review this PR", "code review this branch".
 ---
 
 # Code review
 
-`minimal prompt → single careful diff pass → ≤15 findings`
+`minimal prompt → depth matched to the change → ≤15 findings`
 
-You are reviewing a pull request for real bugs. Run `git diff @{upstream}...HEAD`
-(or `git diff main...HEAD` / `git diff HEAD~1` if there's no upstream) to get the
-unified diff under review. If there are uncommitted changes, or the range diff is
-empty, also run `git diff HEAD` and include the working-tree changes in scope —
-the review often runs before the commit. If a PR number, branch name, or file path
-was passed as an argument, review that target instead. Treat this diff as the
-review scope.
+You are reviewing code changes for real bugs. Decide the review scope yourself
+from the user's words and the repo state — do not ask which scope they meant.
+
+Explicit signals win: a PR number or URL means review that PR (`gh pr diff`); a
+branch name means that branch against its merge base; a file or directory path
+means the changes touching that target. The conversation counts as a signal too —
+"review my changes" after editing files in this session means those changes;
+"review this PR" when the conversation has been about a specific PR means that PR.
+
+With no explicit signal, fall back deterministically: if there are uncommitted
+changes, review the working tree (`git diff HEAD`) plus the branch's committed
+work; otherwise review the branch diff `git diff @{upstream}...HEAD` (or
+`git diff main...HEAD` / `git diff HEAD~1` if there's no upstream). When more than
+one scope plausibly applies, include both rather than guessing narrow, and open
+the review by stating in one line which scope you chose and why. Treat this diff
+as the review scope.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
 surrounding files for context as needed (Read, Grep, git log/blame/show), and hunt
@@ -34,8 +43,10 @@ output.
 
 ## ReportFindings payload
 
-Top level: `level` (`low` | `medium` | `high` | `xhigh` | `max`), `findings`
-(max 32, most-severe first, empty array if nothing survived verification).
+Top level: `level` (`low` | `medium` | `high` | `xhigh` | `max`) — report the
+depth you actually ran at (light → `low`, standard → `medium` or `high` per
+bias, thorough → `xhigh`) — and `findings` (max 32, most-severe first, empty
+array if nothing survived verification).
 
 Each finding:
 
@@ -53,21 +64,37 @@ Each finding:
 Call the tool once. Do not also print the findings as a text list in place of the
 tool call (the one-line restatement above is in addition to it, not instead).
 
-## Effort scaling
+## Calibrating review depth
 
-The prompt above is the **low-effort** shape: one careful inline pass, no
-sub-agents. At higher reasoning effort the same review runs as a fan-out pipeline
-via the Agent tool. If the Agent tool is unavailable, degrade to a single inline
-pass at the same finding cap rather than erroring.
+Choose how deep to review from the change itself — do not ask, and do not key
+the choice off any global setting. The shapes form a spectrum:
 
-| effort      | shape                                                                                               | bias                                                           | cap |
-| ----------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --- |
-| low         | single careful diff pass, inline                                                                    | balanced                                                       | 15  |
-| medium      | 3 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 6 candidates → 1-vote verify         | **precision** — every finding is one a maintainer would act on | 8   |
-| high        | same 8 angles × 6 candidates → 1-vote verify, recall-biased                                         | **recall** — catching real bugs beats avoiding false positives | 10  |
-| xhigh / max | 5 correctness + 3 cleanup + 1 altitude + 1 conventions angle × 8 candidates → 1-vote verify → sweep | **recall** — a missed bug ships                                | 15  |
+- **Light** — one careful inline pass, no sub-agents. For mechanical renames,
+  formatting, docs-only or config-only changes, and other diffs whose failure
+  modes are shallow.
+- **Standard** — a fan-out pipeline via the Agent tool: independent finder angles
+  (correctness, cleanup, altitude, conventions) → dedup → one verifier per
+  candidate. For typical bug fixes and small refactors.
+- **Thorough** — more finder angles and candidates per angle, plus a final sweep
+  over removed code blocks. For complete features, changes touching concurrency,
+  auth, migrations, money, or public interfaces, and anything with a wide blast
+  radius.
 
-Pipeline rules at medium and above:
+Signals for the choice: what kind of change it is (feature vs. fix vs.
+mechanical), diff size, how many callers the touched code has, and how costly a
+missed bug would be. The user's words are the strongest signal and override the
+rest — "quick look" means light, "thorough audit" means thorough — and an
+explicitly set effort level may nudge the choice one step, but the change itself
+is the primary input. State the chosen depth in one line when opening the review.
+
+Bias follows risk the same way: for high-stakes changes prefer **recall** — a
+missed bug ships, so keep any finding a verifier could not refute; for routine
+changes prefer **precision** — only report what a maintainer would act on. The
+cap is 15 findings regardless of depth; it is output discipline, not a depth
+knob. If the Agent tool is unavailable, degrade to a single inline pass at the
+same cap rather than erroring.
+
+Pipeline rules when fanning out (standard and thorough):
 
 - **Phase 1 — find.** Run the finder angles independently. Each surfaces up to N
   candidates with `file`, `line`, a one-line `summary`, and a concrete
@@ -81,7 +108,7 @@ Pipeline rules at medium and above:
   remaining candidate with the diff, the relevant files, and the candidate; it
   returns a three-state verdict. Keep `CONFIRMED` and `PLAUSIBLE`. In recall mode
   a single non-REFUTED vote carries the finding — do not drop on uncertainty.
-- **Sweep (xhigh/max).** A final pass focused on removed code blocks. Output
+- **Sweep (thorough).** A final pass focused on removed code blocks. Output
   `(none)` only if the diff is trivially correct after that pass.
 
 ## Scope boundaries
