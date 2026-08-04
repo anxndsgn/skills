@@ -10,59 +10,31 @@ description: Review code changes for real bugs as a careful senior engineer, the
 You are reviewing code changes for real bugs. Decide the review scope yourself
 from the user's words and the repo state — do not ask which scope they meant.
 
-Explicit signals win: a PR number or URL means review that PR (`gh pr diff`); a
-branch name means that branch against its merge base; a file or directory path
-means the changes touching that target. The conversation counts as a signal too —
-"review my changes" after editing files in this session means those changes;
-"review this PR" when the conversation has been about a specific PR means that PR.
-
-With no explicit signal, fall back deterministically: if there are uncommitted
-changes, review the working tree (`git diff HEAD`) plus the branch's committed
-work; otherwise review the branch diff `git diff @{upstream}...HEAD` (or
-`git diff main...HEAD` / `git diff HEAD~1` if there's no upstream). When more than
-one scope plausibly applies, include both rather than guessing narrow, and open
-the review by stating in one line which scope you chose and why. Treat this diff
-as the review scope.
+Explicit signals win — a PR number or URL, a branch name, a file path, or what
+this conversation has been working on each name their own scope. With no
+signal, fall back deterministically: uncommitted changes mean the working tree
+plus the branch's committed work; otherwise the branch diff against its merge
+base (`@{upstream}`, else `main`). When more than one scope plausibly applies,
+include both rather than guessing narrow. Validate the scope before any
+fan-out — the ref must resolve and the diff must be non-empty; a bad ref or an
+empty diff stops the review here, not inside a sub-agent. Open the review by
+stating scope, depth, and why in one line.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
-surrounding files for context as needed (Read, Grep, git log/blame/show), and hunt
-for correctness issues — wrong or inverted conditions, off-by-one, null/undefined
-dereference, missing `await`, dropped error handling, removed guards or
-validations, broken callers of changed functions, races. Prefer real failure modes
-over style; every finding needs a concrete scenario in which the code misbehaves.
+surrounding files for context as needed, and hunt for correctness issues —
+inverted conditions, missing `await`, dropped guards, broken callers, races,
+and their kin. Prefer real failure modes over style; every finding needs a
+concrete scenario in which the code misbehaves.
 
-When you are done, submit at most 15 findings via the ReportFindings tool, filling
-its fields as defined — for each: the file path and start line, a severity, and a
-comment that states the issue and the concrete scenario in which the code
-misbehaves. Quality over quantity: include everything you genuinely believe is a
-real issue, and nothing you don't.
-
-After the tool call, also restate the findings in your final reply — one line each,
-`file:line — summary` — so they stay visible in sessions that do not render tool
-output.
-
-## ReportFindings payload
-
-Top level: `level` (`low` | `medium` | `high` | `xhigh` | `max`) — report the
-depth you actually ran at (light → `low`, standard → `medium` or `high` per
-bias, thorough → `xhigh`) — and `findings` (max 32, most-severe first, empty
-array if nothing survived verification).
-
-Each finding:
-
-| field              | required | meaning                                                                                      |
-| ------------------ | -------- | -------------------------------------------------------------------------------------------- |
-| `file`             | yes      | repo-relative path                                                                           |
-| `line`             | no       | 1-indexed anchor line                                                                        |
-| `summary`          | yes      | one-sentence statement of the defect                                                         |
-| `short_summary`    | no       | ≤60 chars, the claim alone — no rationale or consequence                                     |
-| `failure_scenario` | yes      | concrete inputs/state → wrong output/crash                                                   |
-| `category`         | no       | kebab-case slug, e.g. `correctness`, `simplification`, `efficiency`, `test-coverage`         |
-| `verdict`          | no       | `CONFIRMED` \| `PLAUSIBLE` — set only when a verify pass ran                                 |
-| `outcome`          | no       | `fixed` \| `skipped` \| `no_change_needed` — set only when re-reporting after applying fixes |
-
-Call the tool once. Do not also print the findings as a text list in place of the
-tool call (the one-line restatement above is in addition to it, not instead).
+When the review has fully converged (see Convergence and close), submit the
+findings in a single ReportFindings call — at most 15, most-severe first,
+filled as the tool's schema defines. Report `level` as the depth you actually
+ran: light → `low`, standard → `medium` or `high` per bias, thorough →
+`xhigh`. Quality over quantity: everything you genuinely believe is a real
+issue, and nothing you don't. After the call, restate the findings in your
+final reply — one line each, `file:line — summary` — so they stay visible in
+sessions that don't render tool output; the restatement is in addition to the
+tool call, never instead of it.
 
 ## Calibrating review depth
 
@@ -80,12 +52,9 @@ the choice off any global setting. The shapes form a spectrum:
   auth, migrations, money, or public interfaces, and anything with a wide blast
   radius.
 
-Signals for the choice: what kind of change it is (feature vs. fix vs.
-mechanical), diff size, how many callers the touched code has, and how costly a
-missed bug would be. The user's words are the strongest signal and override the
-rest — "quick look" means light, "thorough audit" means thorough — and an
-explicitly set effort level may nudge the choice one step, but the change itself
-is the primary input. State the chosen depth in one line when opening the review.
+The user's words are the strongest signal and override the rest — "quick look"
+means light, "thorough audit" means thorough; an explicitly set effort level
+may nudge the choice one step, but the change itself is the primary input.
 
 Bias follows risk the same way: for high-stakes changes prefer **recall** — a
 missed bug ships, so keep any finding a verifier could not refute; for routine
@@ -96,13 +65,20 @@ same cap rather than erroring.
 
 Pipeline rules when fanning out (standard and thorough):
 
-- **Phase 1 — find.** Run the finder angles independently. Each surfaces up to N
-  candidates with `file`, `line`, a one-line `summary`, and a concrete
-  `failure_scenario`. Pass through every candidate with a nameable failure
-  scenario — finders that silently drop half-believed candidates bypass the verify
-  step and are the dominant cause of misses. Don't let one angle's conclusions
-  suppress another's; if two angles flag the same line for different reasons, keep
-  both into verification.
+- **Phase 1 — find.** Run the finder angles independently. Each finder prompt
+  is self-contained — the diff, the scope, and anything it must judge against,
+  pasted in; sub-agents see none of this conversation. Each surfaces up to N
+  candidates, and a candidate is exactly four fields — `file`, `line`, a
+  one-line `summary`, and a concrete `failure_scenario` — not an essay. Pass
+  through every candidate with a nameable failure scenario — finders that
+  silently drop half-believed candidates bypass the verify step and are the
+  dominant cause of misses.
+- **Conventions cite their source.** The conventions angle reports only what it
+  can attribute: a documented standard (`CLAUDE.md`, `CONTRIBUTING.md`, or
+  similar) or the dominant pattern in the surrounding code, named in the
+  finding. In a repo that documents nothing, prevailing code is the standard;
+  where neither source exists, the angle stays silent — generic taste is not a
+  convention, and the repo's own consistent practice overrides it.
 - **Phase 2 — verify.** Dedup candidates pointing at the same line and mechanism,
   keeping the one with the most concrete failure scenario. Run one verifier per
   remaining candidate with the diff, the relevant files, and the candidate; it
@@ -110,6 +86,31 @@ Pipeline rules when fanning out (standard and thorough):
   a single non-REFUTED vote carries the finding — do not drop on uncertainty.
 - **Sweep (thorough).** A final pass focused on removed code blocks. Output
   `(none)` only if the diff is trivially correct after that pass.
+
+## Convergence and close
+
+Find everything first, verify everything second, report everything once.
+
+- **One batch, one close.** Findings are delivered as a single batch after the
+  entire find → verify pipeline has drained. Never state a verdict — least of
+  all "no findings" — while any finder, verifier, or sweep is still
+  outstanding.
+- **State the tally.** Open the final verdict with the completion count
+  (`finders 4/4, verifiers 6/6 completed`) so an undrained pipeline is visible
+  rather than silently passing as done.
+- **Fixes get a delta re-review.** If the session goes on to fix the findings,
+  finish and report the full batch first. After fixing, re-review only the fix
+  hunks and the invariants they touch — do not rescan the whole branch each
+  round.
+- **Targeted tests during, full suite once.** While verifying or fixing a
+  candidate, run only the tests that confirm or refute it. Run the full suite
+  at most once, after the findings list (or fix set) is final — never between
+  rounds.
+- **Stop when dry.** When a pass yields no new confirmed finding with a
+  concrete failure scenario, close. Do not drift into speculative hardening or
+  ever-wider test matrices; if a test file has already outgrown
+  maintainability, report "split this file" as a finding instead of appending
+  to it.
 
 ## Scope boundaries
 
