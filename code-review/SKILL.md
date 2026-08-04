@@ -74,9 +74,11 @@ Pipeline rules when fanning out (standard and thorough):
   silently drop half-believed candidates bypass the verify step and are the
   dominant cause of misses.
 - **Conventions cite their source.** The conventions angle reports only what it
-  can attribute: a documented standard (`CLAUDE.md`, `CONTRIBUTING.md`, or
-  similar) or the dominant pattern in the surrounding code, named in the
-  finding. In a repo that documents nothing, prevailing code is the standard;
+  can attribute: a documented coding standard (`CLAUDE.md`, `CONTRIBUTING.md`)
+  or the dominant pattern in the surrounding code, named in the finding. Specs
+  and acceptance criteria are not convention sources — they state what to
+  build, not how code is written here. In a repo that documents nothing,
+  prevailing code is the standard;
   where neither source exists, the angle stays silent — generic taste is not a
   convention, and the repo's own consistent practice overrides it.
 - **Phase 2 — verify.** Dedup candidates pointing at the same line and mechanism,
@@ -117,6 +119,11 @@ Find everything first, verify everything second, report everything once.
 - Correctness first. Style, formatting, and anything a linter, typechecker, or
   compiler catches is out of scope — CI runs separately.
 - Pre-existing issues on lines the diff did not touch are out of scope.
+- Spec conformance is out of scope. Do not walk acceptance criteria against
+  the implementation — an unmet criterion, a missing test for it, or a stale
+  spec status line belongs to `/spec-verify`, not here. A spec deviation is a
+  finding only when it is also a concrete failure the code exhibits: wrong
+  output, a broken caller, a self-contradictory public contract.
 - Cleanup angles (reuse, simplification, efficiency, altitude) apply to the
   _changed_ code only. For a quality-only pass that also applies the fixes, use
   `/simplify` instead.
