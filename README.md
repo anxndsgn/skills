@@ -2,7 +2,8 @@
 
 Small, composable skills for aligning intent, implementing from a stable spec, and proving the result. Each skill has one responsibility; chain only the ones the task needs.
 
-<img alt="image" src="https://github.com/user-attachments/assets/ade5321c-4f3e-489e-bd7d-77c669e72ba4" />
+<img alt="skills loop flow" src="https://github.com/user-attachments/assets/5c8f8530-7eaf-4750-a05b-c1638e6d57e1" />
+
 
 ## Core Skills
 
