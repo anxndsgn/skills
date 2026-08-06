@@ -4,12 +4,11 @@ Small, composable skills for aligning intent, implementing from a stable spec, a
 
 <img alt="skills loop flow" src="https://github.com/user-attachments/assets/5c8f8530-7eaf-4750-a05b-c1638e6d57e1" />
 
-
 ## Core Skills
 
 | Skill          | Responsibility                                                                                 |
 | -------------- | ---------------------------------------------------------------------------------------------- |
-| `/grill-me`    | Surface unresolved human decisions, one question at a time.                                    |
+| `/grill-me`    | Surface unresolved human decisions in rounds, one frontier of the design tree at a time.       |
 | `/to-spec`     | Turn the agreed context into a task contract with Acceptance Criteria and a Verification Plan. |
 | `/spec-review` | Challenge a spec before implementation for necessity, completeness, and feasibility.           |
 | `/spec-verify` | Verify the final implementation against every Acceptance Criterion using concrete evidence.    |
