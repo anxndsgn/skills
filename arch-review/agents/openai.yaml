@@ -1,0 +1,5 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "Survey the codebase for the few architecture changes worth making"
+policy:
+  allow_implicit_invocation: false
