@@ -1,7 +1,6 @@
 ---
 name: spec-review
 description: Review a spec through three lenses — is the feature needed, is the spec complete, does the implementation plan hold up. Use when the user asks to review, critique, or sanity-check a spec or draft spec.
-disable-model-invocation: true
 ---
 
 Review the named spec (or the spec currently under discussion). The deliverable is the review itself — do not edit the spec or write code unless asked afterwards.

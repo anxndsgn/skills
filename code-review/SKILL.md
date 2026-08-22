@@ -41,7 +41,7 @@ tool call, never instead of it.
 Choose how deep to review from the change itself — do not ask, and do not key
 the choice off any global setting. The shapes form a spectrum:
 
-- **Light** — one careful inline pass, no sub-agents. For mechanical renames,
+- **Light** — one careful inline pass. If the changes made in same session, use a subagent instead, otherwise no subagent. For mechanical renames,
   formatting, docs-only or config-only changes, and other diffs whose failure
   modes are shallow.
 - **Standard** — a fan-out pipeline via the Agent tool: independent finder angles
