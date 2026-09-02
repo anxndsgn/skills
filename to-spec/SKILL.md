@@ -3,7 +3,7 @@ name: to-spec
 description: Turn the current conversation into a spec — no interview, just synthesis of what you've already discussed.
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a spec (you may know this document as a PRD). Do NOT interview the user — just synthesize what you already know.
+This skill takes the current conversation context and codebase understanding and produces a spec (you may know this document as a PRD). Do not interview the user; synthesize what the conversation already established.
 
 ## Process
 
@@ -27,7 +27,7 @@ The solution to the problem, from the user's perspective.
 
 How to fill this section depends on where the spec sits in the workflow:
 
-- **Elicitation mode** — the feature has NOT been through a design discussion (no grilling session, no decision log in the conversation). Write a LONG, numbered list of user stories to surface requirements:
+- **Elicitation mode** — the feature has NOT been through a design discussion (no grilling session, no decision log in the conversation). Write a numbered list of user stories broad enough to surface requirements — every actor and situation, not just the happy path:
 
   1. As an <actor>, I want a <feature>, so that <benefit>
 
@@ -35,7 +35,7 @@ How to fill this section depends on where the spec sits in the workflow:
   1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
   </user-story-example>
 
-- **Synthesis mode** — the decisions already exist earlier in the conversation. Do NOT restate them as stories; post-hoc stories are decision projections, not requirements, and they add reading weight without adding constraint. Instead do the one thing the story exercise is genuinely good for: an actor × situation sweep for edges no decision has covered yet — empty states, missing configuration, offline, version skew, races, permission and auth failures, idempotent re-runs. Write the result as a numbered list of acceptance criteria: externally observable behaviors a test could assert. Add a story only when it pins down behavior nothing else has fixed.
+- **Synthesis mode** — the decisions already exist earlier in the conversation. Do not restate them as stories; post-hoc stories are decision projections, not requirements, and they add reading weight without adding constraint. Instead do the one thing the story exercise is genuinely good for: an actor × situation sweep for edges no decision has covered yet — empty states, missing configuration, offline, version skew, races, permission and auth failures, idempotent re-runs. Write the result as a numbered list of acceptance criteria: externally observable behaviors a test could assert. Add a story only when it pins down behavior nothing else has fixed.
 
 In either mode, include a numbered `### Acceptance Criteria` subsection of externally observable behaviors a test could assert.
 
@@ -51,7 +51,7 @@ A list of implementation decisions that were made. This can include:
 - API contracts
 - Specific interactions
 
-Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
+Do not include specific file paths or code snippets; they go stale quickly.
 
 Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
 

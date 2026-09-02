@@ -94,9 +94,10 @@ Misplaced state, in both directions:
 ## Phase 2 — Report and recommend
 
 Wait for all three agents, dedup findings that point at the same mechanism,
-and keep at most 5. Evidence you cannot reproduce is not evidence: open each
-survivor's cited files, confirm the friction is really there, drop what does
-not reproduce, and re-rate effort from what the files show. Rank the rest by
+and keep only the few worth acting on — a shortlist, not an inventory.
+Evidence you cannot reproduce is not evidence: open each survivor's cited
+files, confirm the friction is really there, drop what does not reproduce, and
+re-rate effort from what the files show. Rank the rest by
 friction removed per unit of effort, where high-churn locations outrank
 clean-but-frozen corners. Report in conversation:
 

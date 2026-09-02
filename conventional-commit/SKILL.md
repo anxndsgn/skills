@@ -2,9 +2,9 @@
 name: conventional-commit
 description: >-
   Create git commits with conventional commit messages and split broad diffs
-  into multiple logical commits when needed. Use when Codex needs to inspect
-  `git status` or `git diff`, decide how to group changed files, stage related
-  changes safely, and commit with messages such as `feat(scope): summary` or
+  into multiple logical commits when needed. Use when the user asks to commit,
+  or when a diff must be inspected, grouped into logical commits, staged
+  safely, and committed with messages such as `feat(scope): summary` or
   `fix(scope): summary` instead of creating one unfocused commit.
 disable-model-invocation: true
 ---
@@ -17,7 +17,7 @@ Inspect the current git worktree, group related changes into the smallest reason
 
 ## Workflow
 
-1. Run formatter first.
+1. Run the repo's formatter first, if it declares one (package scripts, CI config), so formatting noise doesn't land in the commits.
 2. Inspect the worktree with `git status --short`, `git diff --stat`, and targeted `git diff` reads.
 3. Build a short commit plan before staging anything. For each planned commit, identify:
    - the files or hunks that belong together

@@ -5,7 +5,7 @@ description: Review code changes for real bugs as a careful senior engineer, the
 
 # Code review
 
-`minimal prompt → depth matched to the change → ≤15 findings`
+`minimal prompt → depth matched to the change → every verified finding, once`
 
 You are reviewing code changes for real bugs. Decide the review scope yourself
 from the user's words and the repo state — do not ask which scope they meant.
@@ -27,8 +27,8 @@ and their kin. Prefer real failure modes over style; every finding needs a
 concrete scenario in which the code misbehaves.
 
 When the review has fully converged (see Convergence and close), submit the
-findings in a single ReportFindings call — at most 15, most-severe first,
-filled as the tool's schema defines. Report `level` as the depth you actually
+findings in a single ReportFindings call — most-severe first, filled as the
+tool's schema defines. Report `level` as the depth you actually
 ran: light → `low`, standard → `medium` or `high` per bias, thorough →
 `xhigh`. Quality over quantity: everything you genuinely believe is a real
 issue, and nothing you don't. After the call, restate the findings in your
@@ -41,9 +41,11 @@ tool call, never instead of it.
 Choose how deep to review from the change itself — do not ask, and do not key
 the choice off any global setting. The shapes form a spectrum:
 
-- **Light** — one careful inline pass. If the changes made in same session, use a subagent instead, otherwise no subagent. For mechanical renames,
-  formatting, docs-only or config-only changes, and other diffs whose failure
-  modes are shallow.
+- **Light** — one careful pass: inline when the diff came from elsewhere, in a
+  single fresh-context sub-agent when this session wrote the code — a reviewer
+  that just wrote the diff reads its own intent instead of what the code does.
+  For mechanical renames, formatting, docs-only or config-only changes, and
+  other diffs whose failure modes are shallow.
 - **Standard** — a fan-out pipeline via the Agent tool: independent finder angles
   (correctness, cleanup, altitude, conventions) → dedup → one verifier per
   candidate. For typical bug fixes and small refactors.
@@ -58,10 +60,11 @@ may nudge the choice one step, but the change itself is the primary input.
 
 Bias follows risk the same way: for high-stakes changes prefer **recall** — a
 missed bug ships, so keep any finding a verifier could not refute; for routine
-changes prefer **precision** — only report what a maintainer would act on. The
-cap is 15 findings regardless of depth; it is output discipline, not a depth
-knob. If the Agent tool is unavailable, degrade to a single inline pass at the
-same cap rather than erroring.
+changes prefer **precision** — only report what a maintainer would act on.
+Report everything that survived verification; a list that runs long means the
+diff is too large for one review — say so and group findings by mechanism
+rather than truncating. If the Agent tool is unavailable, degrade to a single
+inline pass rather than erroring.
 
 Pipeline rules when fanning out (standard and thorough):
 
