@@ -39,24 +39,26 @@ Implement @spec-file and complete its Verification Plan.
 Clear, small feature:
 
 ```text
-/to-spec → implement → /spec-verify
+/to-spec → commit spec → implement → /spec-verify
 ```
 
 Feature needing alignment:
 
 ```text
-/grill-me → /to-spec → implement → /spec-verify
+/grill-me → /to-spec → commit spec → implement → /spec-verify
 ```
 
 Full feature:
 
 ```text
 /grill-me → /to-spec → /spec-review
-→ /grill-me → /to-spec @spec-file
-→ implement → /spec-verify
+→ /grill-me → /to-spec @spec-file → commit spec
+→ implement → /simplify → /code-review + /spec-verify
 ```
 
-Add `/code-review` for substantial or high-risk changes. Add `/simplify` only when the implementation shows clear complexity. After either changes code, run `/spec-verify` again.
+Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, the closing steps run in a fixed order — `/simplify` first (only when the implementation shows clear complexity), since it changes code; then `/code-review` (for substantial or high-risk changes) and `/spec-verify` together, launched in one message so they run in parallel — both are read-only. Fix what they find, then stop; `/spec-verify` runs once, at the end, not after every edit.
+
+When `/spec-verify` or `/code-review` finds something the spec missed, ask one question: does the failure fall into an edge category `/to-spec` already sweeps? If it does, nothing to record — the list held, the application slipped. If it does not, add the category to `/to-spec`'s sweep, one line. Categories converge; cases never would.
 
 Tiny changes do not need this pipeline: describe the change, implement it, run the smallest relevant check, and inspect the diff.
 

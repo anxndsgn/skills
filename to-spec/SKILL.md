@@ -25,19 +25,9 @@ The solution to the problem, from the user's perspective.
 
 ## Behavioral Coverage
 
-How to fill this section depends on where the spec sits in the workflow:
+The decisions already exist earlier in the conversation. Do not restate them as user stories; post-hoc stories are decision projections, not requirements, and they add reading weight without adding constraint. Instead do the one thing the story exercise is genuinely good for: an actor × situation sweep for edges no decision has covered yet — empty states, missing configuration, offline, version skew, races, permission and auth failures, idempotent re-runs. Write the result as a numbered `### Acceptance Criteria` subsection: externally observable behaviors a test could assert. Add a story only when it pins down behavior nothing else has fixed.
 
-- **Elicitation mode** — the feature has NOT been through a design discussion (no grilling session, no decision log in the conversation). Write a numbered list of user stories broad enough to surface requirements — every actor and situation, not just the happy path:
-
-  1. As an <actor>, I want a <feature>, so that <benefit>
-
-  <user-story-example>
-  1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
-  </user-story-example>
-
-- **Synthesis mode** — the decisions already exist earlier in the conversation. Do not restate them as stories; post-hoc stories are decision projections, not requirements, and they add reading weight without adding constraint. Instead do the one thing the story exercise is genuinely good for: an actor × situation sweep for edges no decision has covered yet — empty states, missing configuration, offline, version skew, races, permission and auth failures, idempotent re-runs. Write the result as a numbered list of acceptance criteria: externally observable behaviors a test could assert. Add a story only when it pins down behavior nothing else has fixed.
-
-In either mode, include a numbered `### Acceptance Criteria` subsection of externally observable behaviors a test could assert.
+If the conversation holds no decisions to synthesize, say so and point to `/grill-me` instead of writing a spec from guesses.
 
 ## Implementation Decisions
 
