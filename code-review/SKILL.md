@@ -5,7 +5,7 @@ description: Review code changes for real bugs as a careful senior engineer, the
 
 # Code review
 
-`minimal prompt → depth matched to the change → every verified finding, once`
+`minimal prompt → depth matched to the change → findings with explicit evidence status, once`
 
 You are reviewing code changes for real bugs. Decide the review scope yourself
 from the user's words and the repo state — do not ask which scope they meant.
@@ -26,15 +26,15 @@ inverted conditions, missing `await`, dropped guards, broken callers, races,
 and their kin. Prefer real failure modes over style; every finding needs a
 concrete scenario in which the code misbehaves.
 
-When the review has fully converged (see Convergence and close), submit the
-findings in a single ReportFindings call — most-severe first, filled as the
-tool's schema defines. Report `level` as the depth you actually
-ran: light → `low`, standard → `medium` or `high` per bias, thorough →
-`xhigh`. Quality over quantity: everything you genuinely believe is a real
-issue, and nothing you don't. After the call, restate the findings in your
-final reply — one line each, `file:line — summary` — so they stay visible in
-sessions that don't render tool output; the restatement is in addition to the
-tool call, never instead of it.
+When the review has fully converged (see Convergence and close), report findings
+most-severe first. If ReportFindings or an equivalent reporting tool is available,
+submit one batch using its actual schema. If that schema supports `level` with
+these values, report the depth actually run: light → `low`, standard → `medium`
+or `high` per bias, thorough → `xhigh`. Use the tool only for findings its schema
+can represent faithfully; report any unsupported evidence status in prose.
+Always include a final reply with one entry per finding:
+`file:line — evidence status — summary`, adding the missing evidence for a
+`PLAUSIBLE` risk. Without a reporting tool, this reply is the deliverable.
 
 ## Calibrating review depth
 
@@ -46,7 +46,7 @@ the choice off any global setting. The shapes form a spectrum:
   that just wrote the diff reads its own intent instead of what the code does.
   For mechanical renames, formatting, docs-only or config-only changes, and
   other diffs whose failure modes are shallow.
-- **Standard** — a fan-out pipeline via the Agent tool: independent finder angles
+- **Standard** — a fan-out pipeline via available delegation tools: independent finder angles
   (correctness, cleanup, altitude, conventions) → dedup → one verifier per
   candidate. For typical bug fixes and small refactors.
 - **Thorough** — more finder angles and candidates per angle, plus a final sweep
@@ -58,20 +58,21 @@ The user's words are the strongest signal and override the rest — "quick look"
 means light, "thorough audit" means thorough; an explicitly set effort level
 may nudge the choice one step, but the change itself is the primary input.
 
-Bias follows risk the same way: for high-stakes changes prefer **recall** — a
-missed bug ships, so keep any finding a verifier could not refute; for routine
-changes prefer **precision** — only report what a maintainer would act on.
-Report everything that survived verification; a list that runs long means the
-diff is too large for one review — say so and group findings by mechanism
-rather than truncating. If the Agent tool is unavailable, degrade to a single
-inline pass rather than erroring.
+Bias follows risk the same way: for high-stakes changes prefer **recall** —
+report confirmed defects and evidence-backed plausible risks, with their status
+explicit; for routine changes prefer **precision** — report confirmed defects.
+Use the evidence standards below for both modes. Group long reports by mechanism
+rather than truncating them. Run independent work concurrently within the
+environment's capacity, batching when needed. If delegation is unavailable,
+perform the selected depth's finder angles, verification, and any sweep directly.
 
 Pipeline rules when fanning out (standard and thorough):
 
 - **Phase 1 — find.** Run the finder angles independently. Each finder prompt
   is self-contained — the diff, the scope, and anything it must judge against,
-  pasted in; sub-agents see none of this conversation. Each surfaces up to N
-  candidates, and a candidate is exactly four fields — `file`, `line`, a
+  included explicitly; use fresh context when supported rather than relying on
+  inherited conversation. Each returns its candidates without a fixed quota.
+  A candidate has four fields — `file`, `line`, a
   one-line `summary`, and a concrete `failure_scenario` — not an essay. Pass
   through every candidate with a nameable failure scenario — finders that
   silently drop half-believed candidates bypass the verify step and are the
@@ -87,10 +88,27 @@ Pipeline rules when fanning out (standard and thorough):
 - **Phase 2 — verify.** Dedup candidates pointing at the same line and mechanism,
   keeping the one with the most concrete failure scenario. Run one verifier per
   remaining candidate with the diff, the relevant files, and the candidate; it
-  returns a three-state verdict. Keep `CONFIRMED` and `PLAUSIBLE`. In recall mode
-  a single non-REFUTED vote carries the finding — do not drop on uncertainty.
+  returns a verdict, supporting evidence, and any missing evidence. Apply the
+  evidence standards below; a candidate surviving a failed attempt to refute it
+  is not sufficient evidence on its own.
 - **Sweep (thorough).** A final pass focused on removed code blocks. Output
-  `(none)` only if the diff is trivially correct after that pass.
+  no findings only after that pass leaves no reportable defect or risk under
+  the selected bias.
+
+### Evidence standards
+
+- **CONFIRMED** — a reproduction, targeted test, or traced code path establishes
+  the trigger, violated behavior, and consequence. Cite the evidence.
+- **PLAUSIBLE** — specific code evidence supports a concrete failure scenario,
+  but a named runtime condition or external contract remains unverified. State
+  what is missing and how to verify it; report it as an unconfirmed risk only
+  in recall mode.
+- **REFUTED** — code, contract, or execution evidence disproves the proposed
+  failure scenario. Cite the disproof and omit the candidate from findings.
+
+If evidence is insufficient for any verdict, record the candidate as unresolved
+with the missing access or check in the review limitations. Tool failures or
+unavailable evidence do not turn a candidate into a confirmed or plausible issue.
 
 ## Convergence and close
 
@@ -102,15 +120,18 @@ Find everything first, verify everything second, report everything once.
   outstanding.
 - **State the tally.** Open the final verdict with the completion count
   (`finders 4/4, verifiers 6/6 completed`) so an undrained pipeline is visible
-  rather than silently passing as done.
+  rather than silently passing as done. For inline work, report passes and
+  candidates checked instead of agent counts. Report blocked checks and
+  unresolved candidates as limitations, without implying a clean review.
 - **Fixes get a delta re-review.** If the session goes on to fix the findings,
   finish and report the full batch first. After fixing, re-review only the fix
   hunks and the invariants they touch — do not rescan the whole branch each
   round.
-- **Targeted tests during, full suite once.** While verifying or fixing a
-  candidate, run only the tests that confirm or refute it. Run the full suite
-  at most once, after the findings list (or fix set) is final — never between
-  rounds.
+- **Validate affected behavior.** While verifying or fixing a candidate, run
+  the tests that confirm or refute it. After fixes, run the required checks
+  appropriate to their scope. Reuse results that still apply; repeat or broaden
+  checks, including the full suite, when new changes, failures, or unresolved
+  concerns warrant it. Passing checks need no repetition without such a reason.
 - **Stop when dry.** When a pass yields no new confirmed finding with a
   concrete failure scenario, close. Do not drift into speculative hardening or
   ever-wider test matrices; if a test file has already outgrown

@@ -11,7 +11,7 @@ This skill takes the current conversation context and codebase understanding and
 
 2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
 
-Check with the user that these seams match their expectations.
+3. Write the draft using established decisions and repository evidence. Record proposed test seams and unresolved choices explicitly; keep proposals distinct from agreed requirements. Ask a focused question only when missing information would materially change the solution, and complete the independent parts of the draft first. Routine test-seam choices do not require confirmation.
 
 <spec-template>
 

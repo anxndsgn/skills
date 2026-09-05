@@ -3,7 +3,7 @@ name: simplify
 description: Review the changed code for reuse, simplification, efficiency, and altitude cleanups, then apply the fixes. Quality only — it does not hunt for bugs.
 ---
 
-`/simplify → 4 cleanup agents in parallel → apply the fixes`
+`/simplify → 4 cleanup angles → apply the fixes`
 
 You are improving the quality of the changed code, not hunting for bugs. Review
 it for reuse, simplification, efficiency, and altitude issues, then fix what you
@@ -18,11 +18,13 @@ include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
 review that target instead. Treat this diff as the review scope.
 
-## Phase 1 — Review (4 cleanup agents in parallel)
+## Phase 1 — Review (4 independent cleanup angles)
 
-Launch **4 independent review agents** via the Agent tool, all in a
-single message so they run concurrently. Pass each agent the diff and one of
-the four angles below. Each returns its findings with `file`, `line`, a
+Use available delegation tools for **4 independent review agents**, running
+concurrently within the environment's capacity or in batches when needed.
+If delegation is unavailable, cover all four angles directly.
+Pass each agent the diff and one of the four angles below.
+Each returns its findings with `file`, `line`, a
 one-line `summary`, and the concrete cost (what is duplicated, wasted, or
 harder to maintain).
 
@@ -57,8 +59,8 @@ special cases.
 
 ## Phase 2 — Apply the fixes
 
-Wait for all four agents to complete, dedup findings that point at the same
-line or mechanism, and fix each remaining one directly. Skip any finding whose
+Complete all four angles and wait for any delegated work, then dedup findings
+that point at the same line or mechanism, and fix each remaining one directly. Skip any finding whose
 fix would change intended behavior, require changes well outside the reviewed
 diff, or that you judge to be a false positive — note the skip rather than
 arguing with it. Finish with a brief summary of what was fixed and what was

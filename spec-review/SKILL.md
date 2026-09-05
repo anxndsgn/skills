@@ -3,7 +3,7 @@ name: spec-review
 description: Review a spec through three lenses — is the feature needed, is the spec complete, does the implementation plan hold up. Use when the user asks to review, critique, or sanity-check a spec or draft spec.
 ---
 
-Review the named spec (or the spec currently under discussion). The deliverable is the review itself — do not edit the spec or write code unless asked afterwards.
+Review the named spec (or the spec currently under discussion). For a review-only request, deliver the review. If the user has also authorized revisions or implementation, finish the review and continue within that scope; authorization given earlier in the conversation counts.
 
 Read only what the review needs: the target spec, whatever the repo uses to state project intent and constraints (README, CLAUDE.md, ADRs), and the specs the target names or amends. Do not sweep the whole repo — a review that costs more than the spec is a bad trade.
 

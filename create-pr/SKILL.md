@@ -19,15 +19,20 @@ concrete examples.
 1. **Get off `main` if needed.** If the work sits on `main`, create a branch
    named `type/kebab-topic` (e.g. `feat/email-sign-in`) and move the
    commits there.
-2. **Commit anything uncommitted** using the conventional-commit skill's rules:
-   `type(scope): summary`, one commit per logical change.
+2. **Commit the requested work** using the conventional-commit skill's rules:
+   `type(scope): summary`, one commit per logical change. Preserve unrelated
+   local changes, including any already staged, outside these commits.
 3. **Review the full branch diff** — `git log` and `git diff main...HEAD` — so
    the body describes everything the PR contains, not just the last commit.
 4. **Run validation** before pushing: the checks this repo declares (CLAUDE.md,
    package scripts, CI config). If `/spec-verify` already produced evidence for
-   this work, cite that instead of re-running the same checks. Report real
-   results in the body; if something fails, stop and say so instead of opening
-   the PR.
+   this work and the evidence still applies to the final changes, cite it
+   instead of re-running the same checks. Diagnose failures, fix those within
+   the authorized scope, and rerun affected checks. Commit any resulting fixes
+   and update the PR description before pushing. If a failure remains because
+   it needs unavailable access, an external change, or work outside that scope,
+   report the blocker and completed validation, and stop before pushing or
+   opening the PR. Report real results in the body.
 5. **Push** with `git push -u origin <branch>`.
 6. **Create the PR** with `gh pr create`, passing the body via a heredoc or
    `--body-file` so markdown survives intact.

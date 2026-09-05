@@ -56,7 +56,7 @@ Full feature:
 → implement → /simplify → /code-review + /spec-verify
 ```
 
-Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, the closing steps run in a fixed order — `/simplify` first (only when the implementation shows clear complexity), since it changes code; then `/code-review` (for substantial or high-risk changes) and `/spec-verify` together, launched in one message so they run in parallel — both are read-only. Fix what they find, then stop; `/spec-verify` runs once, at the end, not after every edit.
+Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, run `/simplify` first (only when the implementation shows clear complexity), since it changes code; then `/code-review` (for substantial or high-risk changes) and `/spec-verify`, in parallel when available capacity permits — both are read-only. After fixes, re-review the changed behavior and re-verify affected acceptance criteria. Reuse evidence that still applies to the final implementation; repeat or broaden checks when new changes, failures, or unresolved concerns invalidate it. Finish when required checks pass and every acceptance criterion has current evidence, or report the specific blocker and unverified criteria.
 
 When `/spec-verify` or `/code-review` finds something the spec missed, ask one question: does the failure fall into an edge category `/to-spec` already sweeps? If it does, nothing to record — the list held, the application slipped. If it does not, add the category to `/to-spec`'s sweep, one line. Categories converge; cases never would.
 

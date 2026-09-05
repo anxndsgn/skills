@@ -4,7 +4,7 @@ description: Survey the codebase for high-leverage architecture improvements —
 disable-model-invocation: true
 ---
 
-`/arch-review [path or focus] → 3 survey agents in parallel → ranked shortlist → user picks`
+`/arch-review [path or focus] → 3 survey angles → ranked shortlist → authorized next step`
 
 You are reviewing placement, not prose: where state, code, and responsibility
 live, and who depends on whom.
@@ -15,9 +15,10 @@ syncing, a drilled value still crosses layers that never read it, an import
 cycle still cycles. Friction that a good local rewrite would dissolve belongs
 to `/simplify` (or `/code-review`, if it's a bug) — not a finding here.
 
-The deliverable is a short ranked report. Architecture changes touch too much
-code to apply unasked — end with a recommendation, and implement only what the
-user picks.
+The deliverable is a short ranked report. For a review-only request, end with
+a recommendation. If the user has also authorized implementation, continue
+with the changes covered by that authorization; an earlier instruction counts
+without another selection step.
 
 A single concrete placement question ("should X live in the store?") needs an
 answer, not a survey — judge it directly against the scope test and ground
@@ -50,10 +51,12 @@ code actually changes:
 
 Skim that list and the directory tree to orient, then fan out.
 
-## Phase 1 — Survey (3 agents in parallel)
+## Phase 1 — Survey (3 independent angles)
 
-Launch **3 read-only Explore agents ("very thorough")** in a single message
-so they run concurrently. Give each the scope, the churn list, the scope test
+Use available delegation tools for **3 read-only survey agents**, one per
+angle, running concurrently within the environment's capacity or in batches
+when needed. If delegation is unavailable, cover all three angles directly.
+Give each agent the scope, the churn list, the scope test
 and ground rules quoted verbatim (an agent can't apply a rule it never sees),
 and one angle below. Each returns findings as: where (files), friction (the
 concrete evidence), proposed change, and effort (S: one file · M: one module ·
@@ -93,8 +96,9 @@ Misplaced state, in both directions:
 
 ## Phase 2 — Report and recommend
 
-Wait for all three agents, dedup findings that point at the same mechanism,
-and keep only the few worth acting on — a shortlist, not an inventory.
+Complete all three angles and wait for any delegated work, then dedup findings
+that point at the same mechanism. Keep only the few worth acting on — a
+shortlist, not an inventory.
 Evidence you cannot reproduce is not evidence: open each survivor's cited
 files, confirm the friction is really there, drop what does not reproduce, and
 re-rate effort from what the files show. Rank the rest by
@@ -108,6 +112,6 @@ clean-but-frozen corners. Report in conversation:
        - Friction: <the evidence>
        - Change: <the proposal and its first concrete step>
 
-Close with which finding you would start with and why, then stop. Implement a
-finding only when the user picks it; if the pick is L effort, run it through
-`/to-spec` before implementing.
+Close the report with which finding you would start with and why. For an
+authorized L-effort change, capture the agreed scope with `/to-spec` before
+implementing, unless an existing spec already covers it.
