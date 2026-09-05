@@ -17,8 +17,11 @@ plus the branch's committed work; otherwise the branch diff against its merge
 base (`@{upstream}`, else `main`). When more than one scope plausibly applies,
 include both rather than guessing narrow. Validate the scope before any
 fan-out — the ref must resolve and the diff must be non-empty; a bad ref or an
-empty diff stops the review here, not inside a sub-agent. Open the review by
-stating scope, depth, and why in one line.
+empty diff stops the review here, not inside a sub-agent. When receiving a
+handoff, validate its supplied scope and snapshot against the current target.
+Open the review by stating scope, depth, and why in one line. Identify the base
+and head commits and any included uncommitted snapshot in the report and briefs;
+account for relevant staged, unstaged, and untracked contents, not just HEAD.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
 surrounding files for context as needed, and hunt for correctness issues —
@@ -46,9 +49,10 @@ the choice off any global setting. The shapes form a spectrum:
   that just wrote the diff reads its own intent instead of what the code does.
   For mechanical renames, formatting, docs-only or config-only changes, and
   other diffs whose failure modes are shallow.
-- **Standard** — a fan-out pipeline via available delegation tools: independent finder angles
-  (correctness, cleanup, altitude, conventions) → dedup → one verifier per
-  candidate. For typical bug fixes and small refactors.
+- **Standard** — check relevant failure modes (logic, callers and contracts,
+  state and lifecycle, error paths), then dedup and verify candidates. One
+  reviewer can cover a compact diff; delegate independent angles when separate
+  contexts would improve coverage. For typical bug fixes and small refactors.
 - **Thorough** — more finder angles and candidates per angle, plus a final sweep
   over removed code blocks. For complete features, changes touching concurrency,
   auth, migrations, money, or public interfaces, and anything with a wide blast
@@ -77,14 +81,9 @@ Pipeline rules when fanning out (standard and thorough):
   through every candidate with a nameable failure scenario — finders that
   silently drop half-believed candidates bypass the verify step and are the
   dominant cause of misses.
-- **Conventions cite their source.** The conventions angle reports only what it
-  can attribute: a documented coding standard (`CLAUDE.md`, `CONTRIBUTING.md`)
-  or the dominant pattern in the surrounding code, named in the finding. Specs
-  and acceptance criteria are not convention sources — they state what to
-  build, not how code is written here. In a repo that documents nothing,
-  prevailing code is the standard;
-  where neither source exists, the angle stays silent — generic taste is not a
-  convention, and the repo's own consistent practice overrides it.
+- **Conventions need a failure mode.** A documented convention or surrounding
+  pattern can reveal a broken assumption, but deviation alone is not a finding.
+  Cite the source and show how the changed code causes a concrete failure.
 - **Phase 2 — verify.** Dedup candidates pointing at the same line and mechanism,
   keeping the one with the most concrete failure scenario. Run one verifier per
   remaining candidate with the diff, the relevant files, and the candidate; it
@@ -134,9 +133,7 @@ Find everything first, verify everything second, report everything once.
   concerns warrant it. Passing checks need no repetition without such a reason.
 - **Stop when dry.** When a pass yields no new confirmed finding with a
   concrete failure scenario, close. Do not drift into speculative hardening or
-  ever-wider test matrices; if a test file has already outgrown
-  maintainability, report "split this file" as a finding instead of appending
-  to it.
+  ever-wider test matrices.
 
 ## Scope boundaries
 
@@ -148,6 +145,7 @@ Find everything first, verify everything second, report everything once.
   spec status line belongs to `/spec-verify`, not here. A spec deviation is a
   finding only when it is also a concrete failure the code exhibits: wrong
   output, a broken caller, a self-contradictory public contract.
-- Cleanup angles (reuse, simplification, efficiency, altitude) apply to the
-  _changed_ code only. For a quality-only pass that also applies the fixes, use
-  `/simplify` instead.
+- Reuse, simplification, efficiency, and placement concerns belong here only
+  when they explain a concrete failure in changed code, such as duplicated
+  implementations returning inconsistent results. Quality improvements without
+  such a failure belong to `/simplify`; avoid repeating its cleanup review.

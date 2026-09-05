@@ -14,7 +14,7 @@ Upstream of any spec — for when the work is still an idea.
 | `/research`           | Chase a question to wherever the answer is observable first-hand, with cited evidence.    |
 | `/debate`             | Two agents build the strongest evidenced case for and against an idea; rule on the whole. |
 
-They chain naturally: `/talk-about-an-idea` surfaces open questions, `/research` settles them, `/debate` gives a big idea an adversarial go/no-go, and a surviving idea flows into `/grill-me → /to-spec`.
+Use discovery skills for the uncertainty that remains: conversation develops the idea, research settles factual questions, and debate tests a consequential go/no-go decision. Carry settled decisions forward rather than repeating discovery before writing a spec.
 
 ## Core Skills
 
@@ -34,33 +34,51 @@ Implementation is intentionally not a skill:
 Implement @spec-file and complete its Verification Plan.
 ```
 
-## Common Chains
+## Choosing the Next Step
 
-Clear, small feature:
+Choose the step that resolves the remaining uncertainty or missing evidence. Each skill can be used independently; a completed step does not require every later skill.
+
+| What is missing                                                | Next step                             |
+| -------------------------------------------------------------- | ------------------------------------- |
+| A clear problem or product idea                                | `/talk-about-an-idea`                 |
+| A user decision about goals or tradeoffs                       | `/grill-me`, focused on that decision |
+| An external fact                                               | `/research`                           |
+| Evidence for a consequential go/no-go decision                 | `/debate`                             |
+| Evidence of technical feasibility                              | A bounded experiment or prototype     |
+| An executable record of agreed decisions                       | `/to-spec`                            |
+| Confidence in a spec's necessity, completeness, or feasibility | `/spec-review`                        |
+| Simpler changed code without behavior changes                  | `/simplify`                           |
+| Confidence in complex or risky code behavior                   | `/code-review`                        |
+| Proof that the implementation meets the spec                   | `/spec-verify`                        |
+| Evidence about state placement or module boundaries            | `/arch-review`                        |
+
+A technical experiment answers one concrete question with the smallest useful probe, an observable success condition, and a clear stopping point. Record the result, its limitations, and the decision it supports in the existing discussion or spec. Treat prototype code as exploratory until deliberately adopted and validated for production.
+
+## Example Paths
+
+Agreed feature with a useful spec:
 
 ```text
 /to-spec → commit spec → implement → /spec-verify
 ```
 
-Feature needing alignment:
+Feature with one unresolved tradeoff:
 
 ```text
-/grill-me → /to-spec → commit spec → implement → /spec-verify
+/grill-me (open decision) → /to-spec → commit spec → implement → /spec-verify
 ```
 
-Full feature:
-
-```text
-/grill-me → /to-spec → /spec-review
-→ /grill-me → /to-spec @spec-file → commit spec
-→ implement → /simplify → /code-review + /spec-verify
-```
+Add `/spec-review` when the spec warrants scrutiny. If it finds one unresolved error state, settle that decision and revise the affected section; reopen other decisions only when new evidence invalidates them. A feasibility concern may need an experiment before further specification.
 
 Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, run `/simplify` first (only when the implementation shows clear complexity), since it changes code; then `/code-review` (for substantial or high-risk changes) and `/spec-verify`, in parallel when available capacity permits — both are read-only. After fixes, re-review the changed behavior and re-verify affected acceptance criteria. Reuse evidence that still applies to the final implementation; repeat or broaden checks when new changes, failures, or unresolved concerns invalidate it. Finish when required checks pass and every acceptance criterion has current evidence, or report the specific blocker and unverified criteria.
 
-When `/spec-verify` or `/code-review` finds something the spec missed, ask one question: does the failure fall into an edge category `/to-spec` already sweeps? If it does, nothing to record — the list held, the application slipped. If it does not, add the category to `/to-spec`'s sweep, one line. Categories converge; cases never would.
+When `/spec-verify` or `/code-review` finds something the spec missed, distinguish a missed application of an existing rule from a recurring gap in the workflow. Use real task outcomes to decide whether a reusable rule needs changing: late decisions, repeated checks, review findings that led to useful fixes, and unnecessary user interruptions. Keep observations in existing task records; one incident does not automatically require another skill rule.
 
 Tiny changes do not need this pipeline: describe the change, implement it, run the smallest relevant check, and inspect the diff.
+
+## Handoffs
+
+When changing steps, sessions, or agents, use the [handoff contract](references/handoff.md) to carry scope, decisions, code snapshot, and applicable evidence in the existing work record. Parallel checks must identify the snapshot they inspected; edits made afterward require refreshing the affected evidence.
 
 ## Utilities
 

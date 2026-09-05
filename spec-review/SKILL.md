@@ -22,3 +22,5 @@ Report format — keep it short:
 - A clean lens gets one line saying so. No praise padding.
 
 When a finding is really a decision only the user can make, phrase it as a question with your recommended answer, rather than reporting it as a defect.
+
+Route follow-up to the affected decision or section. A local gap calls for a local revision; reopen settled decisions only when evidence invalidates them. For a feasibility question that inspection cannot settle, recommend a bounded experiment with a concrete success condition. When handing off the review, identify the spec revision reviewed and unresolved decisions; findings are recommendations, not authorization to implement them.

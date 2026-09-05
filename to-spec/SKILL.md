@@ -13,6 +13,8 @@ This skill takes the current conversation context and codebase understanding and
 
 3. Write the draft using established decisions and repository evidence. Record proposed test seams and unresolved choices explicitly; keep proposals distinct from agreed requirements. Ask a focused question only when missing information would materially change the solution, and complete the independent parts of the draft first. Routine test-seam choices do not require confirmation.
 
+When updating an existing spec, revise the affected decisions and their dependent criteria or checks. Preserve settled decisions unless new evidence or user direction changes them. When handing off the spec, identify its revision, agreed scope, proposed choices, and remaining questions in the existing task summary.
+
 <spec-template>
 
 ## Problem Statement
@@ -40,6 +42,13 @@ A list of implementation decisions that were made. This can include:
 - Schema changes
 - API contracts
 - Specific interactions
+
+Distinguish binding behavior, scope, and constraints from implementation choices.
+Internal structure and test seams may evolve with code evidence while preserving
+the binding contract; record the reason for a material change. A requirement
+change needs an independent rationale and user authorization, including any
+already given. An implementation mismatch alone is not a reason to weaken an
+acceptance criterion.
 
 Do not include specific file paths or code snippets; they go stale quickly.
 

@@ -18,13 +18,17 @@ include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
 review that target instead. Treat this diff as the review scope.
 
+When receiving a handoff, check that its diff still matches this scope. After
+applying fixes, identify the resulting code snapshot, including uncommitted
+contents, and which earlier review or verification evidence the fixes affect.
+
 ## Phase 1 — Review (4 independent cleanup angles)
 
-Use available delegation tools for **4 independent review agents**, running
-concurrently within the environment's capacity or in batches when needed.
-If delegation is unavailable, cover all four angles directly.
-Pass each agent the diff and one of the four angles below.
-Each returns its findings with `file`, `line`, a
+Cover all four angles with one reviewer for a compact diff. For larger changes,
+delegate independent angles when their separate contexts would improve coverage;
+group related angles and stay within available capacity. If delegation is
+unavailable, cover them directly. Give each delegated reviewer the diff and its
+assigned angles. Each returns its findings with `file`, `line`, a
 one-line `summary`, and the concrete cost (what is duplicated, wasted, or
 harder to maintain).
 
