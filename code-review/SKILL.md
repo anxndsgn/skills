@@ -18,10 +18,14 @@ base (`@{upstream}`, else `main`). When more than one scope plausibly applies,
 include both rather than guessing narrow. Validate the scope before any
 fan-out — the ref must resolve and the diff must be non-empty; a bad ref or an
 empty diff stops the review here, not inside a sub-agent. When receiving a
-handoff, validate its supplied scope and snapshot against the current target.
+handoff, validate its supplied scope and snapshot against the current target;
+recover missing context from available artifacts before asking the user.
 Open the review by stating scope, depth, and why in one line. Identify the base
 and head commits and any included uncommitted snapshot in the report and briefs;
-account for relevant staged, unstaged, and untracked contents, not just HEAD.
+include a retrievable diff or snapshot covering relevant staged, unstaged, and
+untracked contents, not just HEAD. Reuse earlier review evidence only where
+behavior and dependencies are unchanged; refresh affected evidence and report
+unidentified snapshots as limitations.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
 surrounding files for context as needed, and hunt for correctness issues —
@@ -122,6 +126,10 @@ Find everything first, verify everything second, report everything once.
   rather than silently passing as done. For inline work, report passes and
   candidates checked instead of agent counts. Report blocked checks and
   unresolved candidates as limitations, without implying a clean review.
+- **Carry the evidence.** Use the final report as the handoff: include checks
+  or inspections and their results, linked to the reviewed snapshot, along
+  with unresolved risks and any next action the user authorized. Findings do
+  not themselves authorize fixes; link existing evidence rather than copying logs.
 - **Fixes get a delta re-review.** If the session goes on to fix the findings,
   finish and report the full batch first. After fixing, re-review only the fix
   hunks and the invariants they touch — do not rescan the whole branch each

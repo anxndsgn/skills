@@ -23,4 +23,6 @@ Report format — keep it short:
 
 When a finding is really a decision only the user can make, phrase it as a question with your recommended answer, rather than reporting it as a defect.
 
-Route follow-up to the affected decision or section. A local gap calls for a local revision; reopen settled decisions only when evidence invalidates them. For a feasibility question that inspection cannot settle, recommend a bounded experiment with a concrete success condition. When handing off the review, identify the spec revision reviewed and unresolved decisions; findings are recommendations, not authorization to implement them.
+Route follow-up to the affected decision or section. A local gap calls for a local revision; reopen settled decisions only when evidence invalidates them. For a feasibility question that inspection cannot settle, recommend a bounded experiment with a concrete success condition.
+
+When receiving a handoff, confirm the requested scope and spec revision against the current target. In the review report, identify that revision, the evidence behind findings, unresolved decisions, and any authorized next action. Recheck affected findings if the spec or supporting code has changed. Findings alone do not authorize implementation; recover missing context from available artifacts before asking the user.

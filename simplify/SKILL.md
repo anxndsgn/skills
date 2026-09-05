@@ -18,9 +18,14 @@ include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
 review that target instead. Treat this diff as the review scope.
 
-When receiving a handoff, check that its diff still matches this scope. After
-applying fixes, identify the resulting code snapshot, including uncommitted
-contents, and which earlier review or verification evidence the fixes affect.
+When receiving a handoff, check that its diff and authorized scope match the
+current task; recover missing context from available artifacts before asking
+the user. After applying fixes, use the final summary as the handoff: identify
+the base and head commits and a retrievable diff or snapshot covering relevant
+staged, unstaged, and untracked contents. Include checks performed and their
+results, remaining limitations, and which earlier review or verification
+evidence the fixes affect. Reuse evidence only for unchanged behavior and
+dependencies; mark evidence from unidentified snapshots unverified.
 
 ## Phase 1 — Review (4 independent cleanup angles)
 

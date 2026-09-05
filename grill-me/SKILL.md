@@ -5,7 +5,7 @@ description: Grill the user relentlessly about a plan, decision, or idea. Use wh
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
-Start from settled decisions in the conversation or supplied handoff when continuing another step. Limit the tree to unresolved decisions that materially affect the current scope; reopen a settled branch only when new evidence or user direction invalidates it.
+Start from settled decisions in the conversation or supplied handoff when continuing another step. Check that the goal, scope, and any referenced spec revision still match the task; recover missing context from available artifacts before asking the user. Limit the tree to unresolved decisions that materially affect the current scope; reopen a settled branch only when new evidence or user direction invalidates it.
 
 Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round. When necessity is unresolved for a nontrivial change, start there — what breaks for the user if this is never built, and whether an existing surface could absorb it. Otherwise, begin at the remaining frontier.
 
@@ -23,4 +23,4 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 When technical feasibility needs execution evidence, use a bounded experiment within the authorized scope: one question, the smallest useful probe, an observable success condition, and a stopping point. Bring the evidence and limitations back to the affected decision. Keep independent branches moving; an inconclusive experiment leaves its prerequisite unresolved.
 
-The interview is done when the frontier is empty or the user explicitly ends it and directs the next step. Treat an instruction such as "use your recommendations and proceed" as settling those recommendations and authorizing that next step, without another confirmation. Summarize the settled decisions and any remaining unknowns; for an interview-only request, end with that summary.
+The interview is done when the frontier is empty or the user explicitly ends it and directs the next step. Treat an instruction such as "use your recommendations and proceed" as settling those recommendations and authorizing that next step, without another confirmation. Use the closing summary as the handoff: goal and scope, settled decisions, recommendations still awaiting a decision, remaining unknowns, links to supporting evidence and its limitations, and the next action the user authorized. Include only what the next step needs; for an interview-only request, end with that summary.

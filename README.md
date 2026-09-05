@@ -78,7 +78,7 @@ Tiny changes do not need this pipeline: describe the change, implement it, run t
 
 ## Handoffs
 
-When changing steps, sessions, or agents, use the [handoff contract](references/handoff.md) to carry scope, decisions, code snapshot, and applicable evidence in the existing work record. Parallel checks must identify the snapshot they inspected; edits made afterward require refreshing the affected evidence.
+Handoff instructions live directly in each relevant `SKILL.md`, so installing a skill also installs the context it needs to receive and pass on work. Each step carries its relevant scope, decisions, snapshot, and evidence in the existing summary or report; no separate handoff document is required.
 
 ## Utilities
 

@@ -13,7 +13,9 @@ This skill takes the current conversation context and codebase understanding and
 
 3. Write the draft using established decisions and repository evidence. Record proposed test seams and unresolved choices explicitly; keep proposals distinct from agreed requirements. Ask a focused question only when missing information would materially change the solution, and complete the independent parts of the draft first. Routine test-seam choices do not require confirmation.
 
-When updating an existing spec, revise the affected decisions and their dependent criteria or checks. Preserve settled decisions unless new evidence or user direction changes them. When handing off the spec, identify its revision, agreed scope, proposed choices, and remaining questions in the existing task summary.
+When updating an existing spec, revise the affected decisions and their dependent criteria or checks. Preserve settled decisions unless new evidence or user direction changes them.
+
+When receiving a handoff, check that its goal, scope, and spec revision match the task; recover missing context from available artifacts before asking the user. When passing on the spec, include its location and revision, agreed decisions, proposed choices, remaining questions, supporting evidence, and the next action the user authorized in the existing task summary. Include only what the next step needs; proposed work is not authorization to implement it.
 
 <spec-template>
 
