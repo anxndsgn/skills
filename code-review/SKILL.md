@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review code changes as a careful senior engineer for correctness defects, quality cost (reuse, simplification, efficiency, altitude), and design cost (API contracts, component responsibility, readability), then report findings as a structured list; with `fix`, apply the safe ones. Automatically picks the review scope — working diff, PR, branch, or file — from the user's words and repo state. Use for "review my changes", "check this diff for bugs", "review this PR", "code review this branch", "simplify / clean up my changes".
+description: Review code changes as a careful senior engineer for correctness defects, quality cost (reuse, simplification, efficiency, altitude), and design cost (API contracts, component responsibility, readability), then report findings as a structured list; with `fix`, apply the safe ones; `simplify`, not `/simplify` command, runs the quality angle alone and fixes. Automatically picks the review scope — working diff, PR, branch, or file — from the user's words and repo state. Use for "review my changes", "check this diff for bugs", "review this PR", "code review this branch", "simplify my changes", "clean this up".
 ---
 
 # Code review
@@ -20,6 +20,11 @@ include both rather than guessing narrow. Validate the scope before any
 fan-out — the ref must resolve and the diff must be non-empty; a bad ref or an
 empty diff stops the review here, not inside a sub-agent. Open the review by
 stating scope, depth, mode (report or fix), and why in one line.
+
+Arguments select angles and mode. Naming one or more finder angles
+(`correctness`, `quality`, `design`, `conventions`) runs only those; `fix`
+turns on fix mode; `simplify` is shorthand for `quality fix`. Unnamed, all
+four angles run. The scope signals above still apply alongside them.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
 surrounding files for context as needed. **Every finding names a concrete
@@ -79,9 +84,10 @@ the choice off any global setting. The shapes form a spectrum:
   code — a reviewer that just wrote the diff reads its own intent instead of
   what the code does. For mechanical renames, formatting, docs-only or
   config-only changes, and other diffs whose failure modes are shallow.
-- **Standard** — a fan-out pipeline via available delegation tools: the four
-  finder angles independently → dedup → one verifier per candidate. For
-  typical bug fixes, small refactors, and any request for cleanup or `fix`.
+- **Standard** — a fan-out pipeline via available delegation tools: the
+  selected finder angles independently → dedup → one verifier per candidate.
+  For typical bug fixes, small refactors, and any request that names an
+  angle, `fix`, or `simplify`.
 - **Thorough** — more candidates per angle, plus a final sweep over removed
   code blocks. For complete features, changes touching concurrency, auth,
   migrations, money, or public interfaces, and anything with a wide blast
