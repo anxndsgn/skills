@@ -13,7 +13,7 @@ live, and who depends on whom.
 in-place rewrite of every file involved: hand-synced state still needs
 syncing, a drilled value still crosses layers that never read it, an import
 cycle still cycles. Friction that a good local rewrite would dissolve belongs
-to `/simplify` (or `/code-review`, if it's a bug) — not a finding here.
+to `/code-review` — not a finding here.
 
 The deliverable is a short ranked report. For a review-only request, end with
 a recommendation. If the user has also authorized implementation, continue

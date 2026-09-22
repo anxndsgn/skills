@@ -24,8 +24,7 @@ They chain naturally: `/talk-about-an-idea` surfaces open questions, `/research`
 | `/to-spec`     | Turn the agreed context into a task contract with Acceptance Criteria and a Verification Plan. |
 | `/spec-review` | Challenge a spec before implementation for necessity, completeness, and feasibility.           |
 | `/spec-verify` | Verify the final implementation against every Acceptance Criterion using concrete evidence.    |
-| `/code-review` | Find material correctness defects and hidden engineering risks in the changed code.            |
-| `/simplify`    | Reduce unnecessary complexity without changing intended behavior. Claude code built-in skill.  |
+| `/code-review` | Find defects, quality cost, and design cost in the changed code; `fix` applies the safe ones.  |
 | `/arch-review` | Survey the codebase for the few architecture changes worth making — state, structure, seams.   |
 
 Implementation is intentionally not a skill:
@@ -53,10 +52,10 @@ Full feature:
 ```text
 /grill-me → /to-spec → /spec-review
 → /grill-me → /to-spec @spec-file → commit spec
-→ implement → /simplify → /code-review + /spec-verify
+→ implement → /code-review fix → /spec-verify
 ```
 
-Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, run `/simplify` first (only when the implementation shows clear complexity), since it changes code; then `/code-review` (for substantial or high-risk changes) and `/spec-verify`, in parallel when available capacity permits — both are read-only. After fixes, re-review the changed behavior and re-verify affected acceptance criteria. Reuse evidence that still applies to the final implementation; repeat or broaden checks when new changes, failures, or unresolved concerns invalidate it. Finish when required checks pass and every acceptance criterion has current evidence, or report the specific blocker and unverified criteria.
+Commit the spec before implementing: that commit is the diff baseline `/spec-verify` checks against. After implementing, run `/code-review` (for substantial or high-risk changes; add `fix` to have it apply the safe quality and design fixes) and `/spec-verify`. With `fix`, `/code-review` changes code, so it runs first; without it, both are read-only and run in parallel when available capacity permits. After fixes, re-review the changed behavior and re-verify affected acceptance criteria. Reuse evidence that still applies to the final implementation; repeat or broaden checks when new changes, failures, or unresolved concerns invalidate it. Finish when required checks pass and every acceptance criterion has current evidence, or report the specific blocker and unverified criteria.
 
 When `/spec-verify` or `/code-review` finds something the spec missed, ask one question: does the failure fall into an edge category `/to-spec` already sweeps? If it does, nothing to record — the list held, the application slipped. If it does not, add the category to `/to-spec`'s sweep, one line. Categories converge; cases never would.
 

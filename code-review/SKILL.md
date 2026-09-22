@@ -1,14 +1,15 @@
 ---
 name: code-review
-description: Review code changes for real bugs as a careful senior engineer, then report findings as a structured list. Automatically picks the review scope — working diff, PR, branch, or file — from the user's words and repo state. Use for "review my changes", "check this diff for bugs", "review this PR", "code review this branch".
+description: Review code changes as a careful senior engineer for correctness defects, quality cost (reuse, simplification, efficiency, altitude), and design cost (API contracts, component responsibility, readability), then report findings as a structured list; with `fix`, apply the safe ones. Automatically picks the review scope — working diff, PR, branch, or file — from the user's words and repo state. Use for "review my changes", "check this diff for bugs", "review this PR", "code review this branch", "simplify / clean up my changes".
 ---
 
 # Code review
 
-`minimal prompt → depth matched to the change → findings with explicit evidence status, once`
+`minimal prompt → depth matched to the change → findings with explicit evidence status, once → fixes on request`
 
-You are reviewing code changes for real bugs. Decide the review scope yourself
-from the user's words and the repo state — do not ask which scope they meant.
+You are reviewing code changes for the cost they add: defects, quality debt,
+and design debt. Decide the review scope yourself from the user's words and the
+repo state — do not ask which scope they meant.
 
 Explicit signals win — a PR number or URL, a branch name, a file path, or what
 this conversation has been working on each name their own scope. With no
@@ -18,40 +19,72 @@ base (`@{upstream}`, else `main`). When more than one scope plausibly applies,
 include both rather than guessing narrow. Validate the scope before any
 fan-out — the ref must resolve and the diff must be non-empty; a bad ref or an
 empty diff stops the review here, not inside a sub-agent. Open the review by
-stating scope, depth, and why in one line.
+stating scope, depth, mode (report or fix), and why in one line.
 
 Review the diff as a careful senior engineer would: read every hunk, open the
-surrounding files for context as needed, and hunt for correctness issues —
-inverted conditions, missing `await`, dropped guards, broken callers, races,
-and their kin. Prefer real failure modes over style; every finding needs a
-concrete scenario in which the code misbehaves.
+surrounding files for context as needed. **Every finding names a concrete
+cost and who pays it.** For correctness that is a failure scenario — inputs
+and state under which the code misbehaves. For quality and design it is the
+helper re-implemented, the work repeated, the caller that must do what the
+API should, the reader that must trace three files to follow one behavior.
+"Cleaner" with no payer is not a finding.
 
 When the review has fully converged (see Convergence and close), report findings
-most-severe first. If ReportFindings or an equivalent reporting tool is available,
-submit one batch using its actual schema. If that schema supports `level` with
+most-severe first, defects before quality and design. If ReportFindings or an
+equivalent reporting tool is available, submit one batch using its actual
+schema, with `category` naming the angle. If that schema supports `level` with
 these values, report the depth actually run: light → `low`, standard → `medium`
 or `high` per bias, thorough → `xhigh`. Use the tool only for findings its schema
 can represent faithfully; report any unsupported evidence status in prose.
 Always include a final reply with one entry per finding:
-`file:line — evidence status — summary`, adding the missing evidence for a
-`PLAUSIBLE` risk. Without a reporting tool, this reply is the deliverable.
+`file:line — angle — evidence status — summary`, adding the missing evidence
+for a `PLAUSIBLE` risk. Without a reporting tool, this reply is the deliverable.
+
+## Finder angles
+
+- **Correctness** — inverted conditions, missing `await`, dropped guards,
+  broken callers, races, and their kin. Prefer real failure modes over style.
+- **Quality** — four lenses on the changed code, each naming the cheaper or
+  simpler form. _Reuse_: code that re-implements something the codebase
+  already has; grep shared and utility modules and files adjacent to the
+  change, and name the existing helper. _Simplification_: redundant or
+  derivable state, copy-paste with slight variation, deep nesting, dead code
+  left behind. _Efficiency_: repeated computation or I/O, independent
+  operations run sequentially, blocking work added to startup or hot paths,
+  long-lived objects built from closures that keep a large enclosing scope
+  alive. _Altitude_: special cases layered on shared infrastructure where
+  generalizing the underlying mechanism would do.
+- **Design** — the shape of what the diff adds: the contract a caller sees
+  (parameters, return, errors, naming), the responsibility a component
+  carries, and what a reader must hold in their head to follow it. Judge
+  against how the surrounding code already shapes such things, not a
+  textbook. Scope test: a design finding here must be fixable by rewriting
+  the files the diff touches; friction that would survive a perfect in-place
+  rewrite of those files is architecture and belongs to `/arch-review`.
+- **Conventions** — reports only what it can attribute: a documented coding
+  standard (`CLAUDE.md`, `CONTRIBUTING.md`) or the dominant pattern in the
+  surrounding code, named in the finding. Specs and acceptance criteria are
+  not convention sources — they state what to build, not how code is written
+  here. In a repo that documents nothing, prevailing code is the standard;
+  where neither source exists, the angle stays silent — generic taste is not
+  a convention, and the repo's own consistent practice overrides it.
 
 ## Calibrating review depth
 
 Choose how deep to review from the change itself — do not ask, and do not key
 the choice off any global setting. The shapes form a spectrum:
 
-- **Light** — one careful pass: inline when the diff came from elsewhere, in a
-  single fresh-context sub-agent when this session wrote the code — a reviewer
-  that just wrote the diff reads its own intent instead of what the code does.
-  For mechanical renames, formatting, docs-only or config-only changes, and
-  other diffs whose failure modes are shallow.
-- **Standard** — a fan-out pipeline via available delegation tools: independent finder angles
-  (correctness, cleanup, altitude, conventions) → dedup → one verifier per
-  candidate. For typical bug fixes and small refactors.
-- **Thorough** — more finder angles and candidates per angle, plus a final sweep
-  over removed code blocks. For complete features, changes touching concurrency,
-  auth, migrations, money, or public interfaces, and anything with a wide blast
+- **Light** — one careful correctness pass: inline when the diff came from
+  elsewhere, in a single fresh-context sub-agent when this session wrote the
+  code — a reviewer that just wrote the diff reads its own intent instead of
+  what the code does. For mechanical renames, formatting, docs-only or
+  config-only changes, and other diffs whose failure modes are shallow.
+- **Standard** — a fan-out pipeline via available delegation tools: the four
+  finder angles independently → dedup → one verifier per candidate. For
+  typical bug fixes, small refactors, and any request for cleanup or `fix`.
+- **Thorough** — more candidates per angle, plus a final sweep over removed
+  code blocks. For complete features, changes touching concurrency, auth,
+  migrations, money, or public interfaces, and anything with a wide blast
   radius.
 
 The user's words are the strongest signal and override the rest — "quick look"
@@ -69,24 +102,17 @@ perform the selected depth's finder angles, verification, and any sweep directly
 Pipeline rules when fanning out (standard and thorough):
 
 - **Phase 1 — find.** Run the finder angles independently. Each finder prompt
-  is self-contained — the diff, the scope, and anything it must judge against,
-  included explicitly; use fresh context when supported rather than relying on
+  is self-contained — the diff, the scope, its angle's definition and the
+  cost rule quoted verbatim, and anything it must judge against, included
+  explicitly; use fresh context when supported rather than relying on
   inherited conversation. Each returns its candidates without a fixed quota.
-  A candidate has four fields — `file`, `line`, a
-  one-line `summary`, and a concrete `failure_scenario` — not an essay. Pass
-  through every candidate with a nameable failure scenario — finders that
-  silently drop half-believed candidates bypass the verify step and are the
-  dominant cause of misses.
-- **Conventions cite their source.** The conventions angle reports only what it
-  can attribute: a documented coding standard (`CLAUDE.md`, `CONTRIBUTING.md`)
-  or the dominant pattern in the surrounding code, named in the finding. Specs
-  and acceptance criteria are not convention sources — they state what to
-  build, not how code is written here. In a repo that documents nothing,
-  prevailing code is the standard;
-  where neither source exists, the angle stays silent — generic taste is not a
-  convention, and the repo's own consistent practice overrides it.
+  A candidate has four fields — `file`, `line`, a one-line `summary`, and the
+  concrete `cost` (a failure scenario, or who pays and what) — not an essay.
+  Pass through every candidate with a nameable cost — finders that silently
+  drop half-believed candidates bypass the verify step and are the dominant
+  cause of misses.
 - **Phase 2 — verify.** Dedup candidates pointing at the same line and mechanism,
-  keeping the one with the most concrete failure scenario. Run one verifier per
+  keeping the one with the most concrete cost. Run one verifier per
   remaining candidate with the diff, the relevant files, and the candidate; it
   returns a verdict, supporting evidence, and any missing evidence. Apply the
   evidence standards below; a candidate surviving a failed attempt to refute it
@@ -97,14 +123,17 @@ Pipeline rules when fanning out (standard and thorough):
 
 ### Evidence standards
 
-- **CONFIRMED** — a reproduction, targeted test, or traced code path establishes
-  the trigger, violated behavior, and consequence. Cite the evidence.
-- **PLAUSIBLE** — specific code evidence supports a concrete failure scenario,
-  but a named runtime condition or external contract remains unverified. State
+- **CONFIRMED** — for a defect: a reproduction, targeted test, or traced code
+  path establishes the trigger, violated behavior, and consequence. For a
+  quality or design cost: the payer and the cost are observable in the code
+  as it stands — the named helper exists, the caller does do the work, the
+  duplicate is there. Cite the evidence.
+- **PLAUSIBLE** — specific code evidence supports a concrete cost, but a
+  named runtime condition or external contract remains unverified. State
   what is missing and how to verify it; report it as an unconfirmed risk only
   in recall mode.
 - **REFUTED** — code, contract, or execution evidence disproves the proposed
-  failure scenario. Cite the disproof and omit the candidate from findings.
+  cost. Cite the disproof and omit the candidate from findings.
 
 If evidence is insufficient for any verdict, record the candidate as unresolved
 with the missing access or check in the review limitations. Tool failures or
@@ -133,21 +162,34 @@ Find everything first, verify everything second, report everything once.
   checks, including the full suite, when new changes, failures, or unresolved
   concerns warrant it. Passing checks need no repetition without such a reason.
 - **Stop when dry.** When a pass yields no new confirmed finding with a
-  concrete failure scenario, close. Do not drift into speculative hardening or
+  concrete cost, close. Do not drift into speculative hardening or
   ever-wider test matrices; if a test file has already outgrown
   maintainability, report "split this file" as a finding instead of appending
   to it.
 
+## Fix mode
+
+`fix` as an argument, or the user asking to apply, simplify, or clean up,
+turns the report into a starting point rather than the deliverable. After the
+full batch is reported, apply each finding whose fix stays inside the reviewed
+diff and preserves intended behavior; skip the rest — a fix that would change
+what the code is meant to do, reach well outside the diff, or that you judge a
+false positive — and note each skip rather than arguing with it. Then run the
+delta re-review and checks above, and close with what was fixed and what was
+skipped.
+
 ## Scope boundaries
 
-- Correctness first. Style, formatting, and anything a linter, typechecker, or
-  compiler catches is out of scope — CI runs separately.
-- Pre-existing issues on lines the diff did not touch are out of scope.
+- Anything a linter, typechecker, or compiler catches is out of scope — CI
+  runs separately.
+- Pre-existing issues on lines the diff did not touch are out of scope. All
+  four angles apply to the _changed_ code only; the reuse lens may name an
+  existing helper elsewhere, but the finding lands on the new duplicate.
 - Spec conformance is out of scope. Do not walk acceptance criteria against
   the implementation — an unmet criterion, a missing test for it, or a stale
   spec status line belongs to `/spec-verify`, not here. A spec deviation is a
   finding only when it is also a concrete failure the code exhibits: wrong
   output, a broken caller, a self-contradictory public contract.
-- Cleanup angles (reuse, simplification, efficiency, altitude) apply to the
-  _changed_ code only. For a quality-only pass that also applies the fixes, use
-  `/simplify` instead.
+- Placement across the repo — where state should live, module boundaries,
+  file structure — belongs to `/arch-review`; see the design angle's scope
+  test.
